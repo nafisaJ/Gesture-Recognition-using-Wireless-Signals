@@ -1,0 +1,181 @@
+#include <Ultrasonic.h>
+Ultrasonic ultrasonic1(7, 8);
+Ultrasonic ultrasonic2(11, 12);
+Ultrasonic ultrasonic3(9, 10);
+String gesture="";
+boolean x=true,y=true,z=true;
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
+}
+
+void loop()
+{
+  float cmMsec1, cmMsec11,cmMsec2, cmMsec22,cmMsec3, cmMsec33;
+  int c1=0,c11=0,c2=0,c22=0,c3=0,c33=0;
+  long prev1 = ultrasonic1.timing();
+  long prev2 = ultrasonic2.timing();
+  long prev3 = ultrasonic3.timing();
+  cmMsec1 = ultrasonic1.convert(prev1, Ultrasonic::CM);
+  cmMsec2 = ultrasonic2.convert(prev2, Ultrasonic::CM);
+  cmMsec3 = ultrasonic3.convert(prev3, Ultrasonic::CM);
+  delay(2);
+  long next1 = ultrasonic1.timing();
+  long next2 = ultrasonic2.timing();
+  long next3 = ultrasonic3.timing();
+  for(int i=0;i<10;i++)
+  {
+    cmMsec11 = ultrasonic1.convert(next1, Ultrasonic::CM);
+    cmMsec22 = ultrasonic2.convert(next2, Ultrasonic::CM);
+    cmMsec33 = ultrasonic3.convert(next3, Ultrasonic::CM);
+    if(cmMsec1<cmMsec11)
+    {
+      cmMsec1 = cmMsec11;
+      delay(3);
+      c1=c1+1;
+    }
+    else if(cmMsec1>cmMsec11)
+    {
+      cmMsec1 = cmMsec11;
+      delay(3);
+      c11=c11+1;
+    }
+      if(cmMsec2<cmMsec22)
+    {
+      cmMsec2 = cmMsec22;
+      delay(3);
+      c2=c2+1;
+    }
+    else if(cmMsec2>cmMsec22)
+    {
+      cmMsec2 = cmMsec22;
+      delay(3);
+      c22=c22+1;
+    }
+    
+    if(cmMsec3<cmMsec33)
+    {
+      cmMsec3 = cmMsec33;
+      delay(3);
+      c3=c3+1;
+    }
+    else if(cmMsec3>cmMsec33)
+    {
+      cmMsec3 = cmMsec33;
+      delay(3);
+      c33=c33+1;
+    }
+    next1 = ultrasonic1.timing();
+    next2 = ultrasonic2.timing();
+    next3 = ultrasonic3.timing();
+
+  }
+  if(c1>=9 && (gesture.charAt(gesture.length()-1)!='d'|| gesture.length()==0))
+  {
+    Serial.println("down");
+    c1=0;
+    gesture+="d";
+    check();
+  }
+  else if(c11>=9 && (gesture.charAt(gesture.length()-1)!='u'|| gesture.length()==0))
+  {
+    Serial.println("up");
+    c11=0;
+    gesture+="u";
+    check();
+  }
+
+  if(c2>=9 && (gesture.charAt(gesture.length()-1)!='r'|| gesture.length()==0))
+  {
+    Serial.println("right");
+    c2=0;
+    gesture+="r";
+    check();
+  }
+  else if(c22>=9 && (gesture.charAt(gesture.length()-1)!='l'|| gesture.length()==0))
+  {
+    Serial.println("left");
+    c22=0;
+    gesture+="l";
+    check();
+  }
+
+  if(c3>=9 && (gesture.charAt(gesture.length()-1)!='b' || gesture.length()==0))
+  {
+    Serial.println("back");
+    c3=0;
+    gesture+="b";
+    check();
+  }
+  else if(c33>=9 && (gesture.charAt(gesture.length()-1)!='f' || gesture.length()==0))
+  {
+    Serial.println("front");
+    c33=0;
+    gesture+="f";
+    check();
+  }
+}
+void check()
+{
+  for(int i=0;i<=gesture.length();i++)
+  {
+    if(gesture.substring(i,i+3)=="udu")
+    {
+      if(x)
+      {
+        digitalWrite(2, HIGH);
+        Serial.println("RED LED switched on");
+        x=!x;
+      }
+      else
+      {
+        digitalWrite(2,LOW);
+        Serial.println("RED LED switched off");
+        x=!x;
+      }
+      gesture="";
+      break;
+    }
+    if(gesture.substring(i,i+3)=="rlr")
+    {
+      if(y)
+      {
+        digitalWrite(3, HIGH);
+        Serial.println("GREEN LED switched on");
+        y=!y;
+      }
+      else
+      {
+        digitalWrite(3,LOW);
+        Serial.println("GREEN LED switched off");
+        y=!y;
+      }
+      gesture="";
+      break;
+    }
+    if(gesture.substring(i,i+3)=="fbf")
+    {
+      if(z)
+      {
+        digitalWrite(4, HIGH);
+        Serial.println("YELLOW LED switched on");
+        z=!z;
+      }
+      else
+      {
+        digitalWrite(4,LOW);
+        Serial.println("YELLOW LED switched off");
+        z=!z;
+      }
+      gesture="";
+      break;
+    }
+  }
+  loop();
+}
+
+
+
